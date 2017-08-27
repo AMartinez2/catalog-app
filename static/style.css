@@ -1,0 +1,42 @@
+/* Globals */
+body {
+  max-width: 1300px;
+  border: none;
+  margin: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+a:hover{
+  text-decoration: none;
+  color: blue;
+}
+
+header {
+  width: 100%;
+  height: 50px;
+  background-color: red;
+}
+
+.container {
+  width: 60%;
+  margin: auto;
+}
+
+ .content {
+   background-color: blue;
+ }
+
+ .listed-items {
+   min-width: 200px;
+   float: left;
+   width: 50%;
+   background-color: yellow;
+ }
+
+ .listed-items a {
+   width: 100%;
+ }

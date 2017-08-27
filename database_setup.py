@@ -11,16 +11,16 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'user'
 
-    user_id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     username = Column(String(250), nullable=False)
-    email = (Column(String(250), nullable=False)
-    user_hash = Column(String(100), nallable=False)
+    email = Column(String(250), nullable=False)
+    hash = Column(String(100), nullable=False)
 
     @property
     def serialize(self):
         """Returning object data in easily serializable format"""
         return {
-            'user_id'   : self.user_id,
+            'id'        : self.id,
             'username'  : self.username,
             'email'     : self.email,
         }
@@ -35,7 +35,7 @@ class Item(Base):
     catagory = Column(String(70), nullable=False)
     description = Column(String(500), nullable=True)
     timeCreated = Column(String(100), nullable=False)
-    user_id = Column(Integer, ForeignKey('user_id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
     @property
