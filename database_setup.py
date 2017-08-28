@@ -14,7 +14,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
-    hash = Column(String(100), nullable=False)
+    hash = Column(String(250), nullable=False)
 
     @property
     def serialize(self):
@@ -30,11 +30,11 @@ class User(Base):
 class Item(Base):
     __tablename__ = 'item'
 
-    item_id = Column(Integer, primary_key=True)
-    name = Column(String(70), nullable=False)
-    catagory = Column(String(70), nullable=False)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False)
+    catagory = Column(String(250), nullable=False)
     description = Column(String(500), nullable=True)
-    timeCreated = Column(String(100), nullable=False)
+    timeCreated = Column(String(250), nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
@@ -42,11 +42,12 @@ class Item(Base):
     def serialize(self):
         """Returning object data in easily serializable format"""
         return {
-            'item_id'       : self.id,
+            'id'            : self.id,
             'name'          : self.name,
             'catagory'      : self.catagory,
             'description'   : self.description,
             'timeCreated'   : self.timeCreated,
+            'user_id'       : self.user_id,
         }
 
 

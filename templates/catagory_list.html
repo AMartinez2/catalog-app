@@ -1,19 +1,23 @@
+<!--- Required argument names: 'catagories', 'items' --->
 {% extends "main.html" %}
 {% block content %}
+
   <div class="listed-items">
     <h3>Catagories</h3>
     {% for i in catagories %}
-      <a href="theselecteditem">
+      <a href="{{ url_for('showCatagory', item_catagory=i.catagory) }}">
         <h4>{{ i.catagory }}</h4>
       </a>
     {% endfor %}
   </div>
+
   <div class="listed-items">
     <h3>Latest Items</h3>
     {% for i in items %}
-      <a href="theselecteditem">
-        <h4>{{ i.name }}<span> ({{i.catagory}})</span></h4>
+      <a href="{{ url_for('showItem', item_catagory=i.catagory, item_name=i.name) }}">
+        <h4>{{ i.name }}</h4>
       </a>
     {% endfor %}
   </div>
+
 {% endblock %}
