@@ -40,3 +40,14 @@ header {
  .listed-items a {
    width: 100%;
  }
+
+#catalog-button {
+  float: left;
+  background-color: blue;
+  padding: 10px;
+}
+
+ #login-button {
+   float: right;
+   padding: 10px;
+ }

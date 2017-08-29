@@ -6,16 +6,15 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Item, User
 import json
 import requests
+import random
+import string
 
 app = Flask(__name__)
 
 
-# Uncomment when developing authentication
-"""
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
-APPLICATION_NAME = "Restaurant Menu Application"
-"""
+APPLICATION_NAME = "Catalog Project"
 
 
 # Connect to the database and create database session
@@ -57,6 +56,18 @@ def showCatagory(item_catagory):
     cat_items = session.query(Item).filter_by(catagory=item_catagory)
     return render_template('catagory_list.html', catagories=cat,
                                                     items=cat_items)
+
+
+# Login page
+@app.route('/catalog/login')
+def loginPage():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    ## Uncomment next line and comment line after to see session state ##
+    # return "The current session state is %s" % login_session['state']
+    return render_template('login_page.html')
+
 
 # Run the server on localhost
 if __name__ == '__main__':
