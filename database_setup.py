@@ -13,6 +13,7 @@ class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
+    username = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
 
     @property
