@@ -49,7 +49,8 @@ def showItemsMain():
 def showItem(item_catagory, item_name):
     item_result = session.query(Item).filter_by(catagory=item_catagory,
                                                 name=item_name).one()
-    return render_template('item.html', item=item_result)
+    if 'username' not in login_session:
+        return render_template('item.html', item=item_result)
 
 
 # List of all items in specific catagory
@@ -57,8 +58,33 @@ def showItem(item_catagory, item_name):
 def showCatagory(item_catagory):
     cat = session.query(Item).group_by(Item.catagory).order_by(Item.catagory)
     cat_items = session.query(Item).filter_by(catagory=item_catagory)
-    return render_template('catagory_list.html', catagories=cat,
-                                                    items=cat_items)
+    if 'username' not in login_session:
+        return render_template('catagory_list.html', catagories=cat,
+                                                        items=cat_items)
+
+
+# Edit specific items
+@app.route('/catalog/<string:item_catagory>/<string:item_name>/edit/',
+                                                methods['GET', 'POST'])
+def editItem(item_catagory, item_name):
+    # In case not logged in user accesses site using the url
+    if 'username' not in login_session:
+        return redirect(url_for('login'))
+
+    item_result = session.query(Item).filter_by(catagory=item_catagory,
+                                            name=item_name).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            item_result.name = request.form['name']
+            return redirect(url_for('showItemsMain'))
+        if request.form['description']:
+            item_result.description = request.form['description']
+            return redirect(url_for('showItemsMain'))
+        if request.form['catagory']:
+            item_result.description = request.form['catagory']
+            return redirect(url_for('showItemsMain'))
+    else:
+        return render_template('edit-item.html', item=item_result)
 
 
 # Login page
@@ -71,6 +97,7 @@ def loginPage():
     ## Uncomment next line and comment line after to see session state ##
     #return "The current session state is %s" % login_session['state']
     return render_template('login_page.html', STATE=state)
+
 
 # Logout page
 @app.route('/disconnect/')
