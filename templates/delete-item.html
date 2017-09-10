@@ -1,0 +1,9 @@
+<!--- Required argument names: 'item' --->
+{% extends "main.html" %}
+{% include "header.html" %}
+{% block content %}
+  <h1>Are you sure you want to delete <b>{{item.name}}</b></h1>
+  <form>
+    <button type="submit" id="submit" type="submit">Delete</button>
+  </form>
+{% endblock %}

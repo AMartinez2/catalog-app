@@ -34,8 +34,6 @@ class Item(Base):
     catagory = Column(String(250), nullable=False)
     description = Column(String(500), nullable=True)
     timeCreated = Column(String(250), nullable=False)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
 
     @property
     def serialize(self):
@@ -46,7 +44,6 @@ class Item(Base):
             'catagory'      : self.catagory,
             'description'   : self.description,
             'timeCreated'   : self.timeCreated,
-            'user_id'       : self.user_id,
         }
 
 

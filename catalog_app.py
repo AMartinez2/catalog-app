@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for
 from flask import session as login_session
 from flask import make_response
-from sqlalchemy import create_engine, asc
+from sqlalchemy import create_engine, asc, func
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Item, User
 from oauth2client.client import flow_from_clientsecrets
@@ -39,7 +39,8 @@ def catalogJSON():
 @app.route('/')
 @app.route('/catalog/')
 def showItemsMain():
-    cat = session.query(Item).group_by(Item.catagory).order_by(Item.catagory)
+    cat = session.query(Item).group_by(
+                            func.upper(Item.catagory)).order_by(Item.catagory)
     latest = session.query(Item).order_by(Item.timeCreated)
     return render_template('latest_list.html', catagories=cat, items=latest)
 
@@ -49,43 +50,57 @@ def showItemsMain():
 def showItem(item_catagory, item_name):
     item_result = session.query(Item).filter_by(catagory=item_catagory,
                                                 name=item_name).one()
-    if 'username' not in login_session:
-        return render_template('item.html', item=item_result)
+    return render_template('item.html', item=item_result)
 
 
 # List of all items in specific catagory
 @app.route('/catalog/<string:item_catagory>/items/')
 def showCatagory(item_catagory):
-    cat = session.query(Item).group_by(Item.catagory).order_by(Item.catagory)
+    cat = session.query(Item).group_by(
+                            func.upper(Item.catagory)).order_by(Item.catagory)
     cat_items = session.query(Item).filter_by(catagory=item_catagory)
-    if 'username' not in login_session:
-        return render_template('catagory_list.html', catagories=cat,
-                                                        items=cat_items)
+    return render_template('catagory_list.html', catagories=cat,
+                                                    items=cat_items)
 
 
 # Edit specific items
 @app.route('/catalog/<string:item_catagory>/<string:item_name>/edit/',
-                                                methods['GET', 'POST'])
+                                                methods=['GET', 'POST'])
 def editItem(item_catagory, item_name):
     # In case not logged in user accesses site using the url
     if 'username' not in login_session:
-        return redirect(url_for('login'))
+        return redirect(url_for('loginPage'))
 
     item_result = session.query(Item).filter_by(catagory=item_catagory,
                                             name=item_name).one()
     if request.method == 'POST':
+        print "got a post messege"
         if request.form['name']:
             item_result.name = request.form['name']
-            return redirect(url_for('showItemsMain'))
         if request.form['description']:
             item_result.description = request.form['description']
-            return redirect(url_for('showItemsMain'))
         if request.form['catagory']:
-            item_result.description = request.form['catagory']
-            return redirect(url_for('showItemsMain'))
+            item_result.catagory = request.form['catagory']
+        session.add(item_result)
+        session.commit()
+        return redirect(url_for('showItemsMain'))
     else:
         return render_template('edit-item.html', item=item_result)
 
+
+# Delete specific item
+@app.route('/catalog/<string:item_catagory>/<string:item_name>/delete/',
+            methods=['GET', 'POST'])
+def deleteItem(item_catagory, item_name):
+    if 'username' not in login_session:
+        return redirect(url_for('loginPage'))
+
+    result_item = session.query(Item).filter_by(
+                                catagory=item_catagory, name=item_name).one()
+    if request.form == 'POST':
+        return redirect(url_for('showItemsMain'))
+    else:
+        return render_template('delete-item.html', item=result_item)
 
 # Login page
 @app.route('/login/')
