@@ -1,0 +1,16 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+  <form action="#" method="post">
+    <label for"name">Name:</label>
+    <input type="text" maxlength="100" name="name" value="Name">
+
+    <label for"description">Description:</label>
+    <textarea maxlength="500" rows="3" name="description">Description</textarea>
+
+    <label for"catagory">Catagory:</label>
+    <textarea maxlength="100" rows="1" name="catagory">Catagory</textarea>
+
+    <button type="submit"><span area-hidden="true">Save</span></button>
+  </form>
+{% endblock %}

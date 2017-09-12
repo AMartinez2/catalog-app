@@ -6,11 +6,9 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Item, User
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
-import httplib2
-import json
-import requests
-import random
-import string
+from datetime import datetime
+import httplib2, json, requests, random, string
+
 
 app = Flask(__name__)
 
@@ -29,7 +27,8 @@ session = DBSession()
 
 
 # JSON format
-@app.route('/catalog/JSON')
+@app.route('/catalog/JSON/')
+@app.route('/catalog/json/')
 def catalogJSON():
     allItems = session.query(Item).all()
     return jsonify(items=[j.serialize for j in allItems])
@@ -41,7 +40,7 @@ def catalogJSON():
 def showItemsMain():
     cat = session.query(Item).group_by(
                             func.upper(Item.catagory)).order_by(Item.catagory)
-    latest = session.query(Item).order_by(Item.timeCreated)
+    latest = session.query(Item).order_by(Item.timeCreated.desc())
     return render_template('latest_list.html', catagories=cat, items=latest)
 
 
@@ -88,19 +87,45 @@ def editItem(item_catagory, item_name):
         return render_template('edit-item.html', item=item_result)
 
 
+# Add new Item
+@app.route('/catalog/newitem/', methods=['GET', 'POST'])
+def createItem():
+    if 'username' not in login_session:
+        return redirect(url_for('loginPage'))
+
+    if request.method == 'POST':
+        if request.form['name'] and request.form['description'] and request.form['catagory']:
+            time = str(datetime.now())
+            item1 = Item(name=request.form['name'],
+                            catagory=request.form['catagory'],
+                            description=request.form['description'],
+                            timeCreated=time)
+            session.add(item1)
+            session.commit()
+            return redirect(url_for('showItemsMain'))
+    else:
+        return render_template('add-item.html')
+
+
 # Delete specific item
 @app.route('/catalog/<string:item_catagory>/<string:item_name>/delete/',
             methods=['GET', 'POST'])
 def deleteItem(item_catagory, item_name):
+    print 'entering delete function'
     if 'username' not in login_session:
         return redirect(url_for('loginPage'))
 
     result_item = session.query(Item).filter_by(
                                 catagory=item_catagory, name=item_name).one()
-    if request.form == 'POST':
+    if request.method == 'POST':
+        print 'trying to delete'
+        session.delete(result_item)
+        session.commit()
         return redirect(url_for('showItemsMain'))
     else:
+        print 'not a post method'
         return render_template('delete-item.html', item=result_item)
+
 
 # Login page
 @app.route('/login/')
