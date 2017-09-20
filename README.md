@@ -12,9 +12,10 @@ Install python [here](https://www.python.org/downloads/).
 
 Flask and Sqlalchemy can be installed using Python's pip module.
 
-```$ pip install flask```
-
-```$ pip install sqlalchemy```
+``` sh
+$ pip install flask
+$ pip install sqlalchemy
+```
 
 ## Setup
 
@@ -29,10 +30,10 @@ Connect to `localhost:5000` to access the site.
 
 If you don't want an empty site, the `populatedatabase.py` file has some catalog entries already filled out. Simply run `populatedatabase.py` after creating the database to add items to the catalog. So in order,
 
-```$ python database_setup.py```
-
-```$ python populatedatabase.py```
-
-```$ python catalog_app.py```
+``` sh
+$ python database_setup.py
+$ python populatedatabase.py
+$ python catalog_app.py
+```
 
 Then connect to `localhost:5000`.
