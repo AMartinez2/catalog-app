@@ -1,8 +1,11 @@
 {% extends "main.html" %}
 {% include "header.html" %}
 {% block content %}
-  <h3 id="item-title">{{item.name}}</h3>
-  <p id="item-desc">{{item.description}}</p>
-  <a id="edit-button" href="{{ url_for('editItem', item_catagory=item.catagory, item_name=item.name) }}">Edit</a>
+<div class="selected-item container">
+  <h1 id="item-title">{{item.name}}</h1>
+  <a id="edit-button" href="{{ url_for('editItem', item_catagory=item.catagory, item_name=item.name) }}">Edit </a>
+  <span> | </span> <!-- Line in Between-->
   <a id="delete-button" href="{{ url_for('deleteItem', item_catagory=item.catagory, item_name=item.name) }}">Delete</a>
+  <p id="item-desc">{{item.description}}</p>
+</div>
 {% endblock %}

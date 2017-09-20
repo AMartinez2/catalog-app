@@ -1,16 +1,24 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
+<div class="input-section container">
   <form action="#" method="post">
-    <label for"name">Name:</label>
-    <input type="text" maxlength="100" name="name" value="Name">
+    <div class="input-part">
+      <label for"name">Name:</label>
+      <input type="text" maxlength="100" name="name" value="Name">
+    </div>
 
-    <label for"description">Description:</label>
-    <textarea maxlength="500" rows="3" name="description">Description</textarea>
+    <div class="input-part">
+      <label for"description">Description:</label>
+      <textarea maxlength="500" rows="3" name="description">Description</textarea>
+    </div>
 
-    <label for"catagory">Catagory:</label>
-    <textarea maxlength="100" rows="1" name="catagory">Catagory</textarea>
+    <div class="input-part">
+      <label for"catagory">Catagory:</label>
+      <textarea maxlength="100" rows="1" name="catagory">Catagory</textarea>
+    </div>
 
-    <button type="submit"><span area-hidden="true">Save</span></button>
+    <button type="submit"><span area-hidden="true">Submit</span></button>
   </form>
+</div>
 {% endblock %}

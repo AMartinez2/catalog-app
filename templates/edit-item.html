@@ -1,6 +1,7 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
+<div class="input-section container">
   <form action="#" method="post">
     <label for"name">Name:</label>
     <input type="text" maxlength="100" name="name" value="{{ item.name }}">
@@ -13,4 +14,5 @@
 
     <button type="submit"><span area-hidden="true">Save</span></button>
   </form>
+</div>
 {% endblock %}

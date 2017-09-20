@@ -2,8 +2,11 @@
 {% extends "main.html" %}
 {% include "header.html" %}
 {% block content %}
+<div class="input-section container">
   <h1>Are you sure you want to delete <b>{{item.name}}</b></h1>
   <form action="#" method="post">
     <button type="submit"><span area-hidden="true">Delete</span></button>
   </form>
+    <a href="{{ url_for('showItemsMain') }}">Cancel</a>
+</div>
 {% endblock %}
