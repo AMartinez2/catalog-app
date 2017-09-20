@@ -7,7 +7,11 @@ from database_setup import Base, Item, User
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from datetime import datetime
-import httplib2, json, requests, random, string
+import httplib2
+import json
+import requests
+import random
+import string
 
 
 app = Flask(__name__)
@@ -55,25 +59,24 @@ def showItem(item_catagory, item_name):
 # List of all items in specific catagory
 @app.route('/catalog/<string:item_catagory>/items/')
 def showCatagory(item_catagory):
-    cat = session.query(Item).group_by(
-                            func.upper(Item.catagory)).order_by(Item.catagory)
+    cat = session.query(Item).group_by(func.upper(
+        Item.catagory)).order_by(Item.catagory)
     cat_items = session.query(Item).filter_by(catagory=item_catagory)
     return render_template('catagory_list.html', catagories=cat,
-                                                    items=cat_items)
+                           items=cat_items)
 
 
 # Edit specific items
 @app.route('/catalog/<string:item_catagory>/<string:item_name>/edit/',
-                                                methods=['GET', 'POST'])
+           methods=['GET', 'POST'])
 def editItem(item_catagory, item_name):
     # In case not logged in user accesses site using the url
     if 'username' not in login_session:
         return redirect(url_for('loginPage'))
 
     item_result = session.query(Item).filter_by(catagory=item_catagory,
-                                            name=item_name).one()
+                                                name=item_name).one()
     if request.method == 'POST':
-        print "got a post messege"
         if request.form['name']:
             item_result.name = request.form['name']
         if request.form['description']:
@@ -94,12 +97,13 @@ def createItem():
         return redirect(url_for('loginPage'))
 
     if request.method == 'POST':
-        if request.form['name'] and request.form['description'] and request.form['catagory']:
+        if request.form['name'] and request.form['description']
+        and request.form['catagory']:
             time = str(datetime.now())
             item1 = Item(name=request.form['name'],
-                            catagory=request.form['catagory'],
-                            description=request.form['description'],
-                            timeCreated=time)
+                         catagory=request.form['catagory'],
+                         description=request.form['description'],
+                         timeCreated=time)
             session.add(item1)
             session.commit()
             return redirect(url_for('showItemsMain'))
@@ -109,21 +113,18 @@ def createItem():
 
 # Delete specific item
 @app.route('/catalog/<string:item_catagory>/<string:item_name>/delete/',
-            methods=['GET', 'POST'])
+           methods=['GET', 'POST'])
 def deleteItem(item_catagory, item_name):
-    print 'entering delete function'
     if 'username' not in login_session:
         return redirect(url_for('loginPage'))
 
     result_item = session.query(Item).filter_by(
                                 catagory=item_catagory, name=item_name).one()
     if request.method == 'POST':
-        print 'trying to delete'
         session.delete(result_item)
         session.commit()
         return redirect(url_for('showItemsMain'))
     else:
-        print 'not a post method'
         return render_template('delete-item.html', item=result_item)
 
 
@@ -132,10 +133,9 @@ def deleteItem(item_catagory, item_name):
 def loginPage():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
-    print state
     login_session['state'] = state
-    ## Uncomment next line and comment line after to see session state ##
-    #return "The current session state is %s" % login_session['state']
+    # Uncomment next line and comment line after to see session state #
+    # return "The current session state is %s" % login_session['state']
     return render_template('login_page.html', STATE=state)
 
 
@@ -144,16 +144,14 @@ def loginPage():
 def disconnect():
     if 'provider' in login_session:
         gdisconnect()
-        print "Successfully logged out"
         return redirect(url_for('showItemsMain'))
     else:
-        print "Not logged out"
         return redirect(url_for('showItemsMain'))
 
 
 def getUserId(email):
     try:
-        user = session.query(User).filter_by(email = email).one()
+        user = session.query(User).filter_by(email=email).one()
         return user.id
     except:
         return None
@@ -161,18 +159,18 @@ def getUserId(email):
 
 def getUserInfo(user_id):
     try:
-        user = session.query(User).filter_by(id = user_id).one()
+        user = session.query(User).filter_by(id=user_id).one()
         return user
     except:
         return None
 
 
 def createUser(login_session):
-    newUser = User(username = login_session['username'],
-                    email=login_session['email'])
+    newUser = User(username=login_session['username'],
+                   email=login_session['email'])
     session.add(newUser)
     session.commit()
-    user = session.query(User).filter_by(email = login_session['email']).one()
+    user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
 
@@ -221,23 +219,20 @@ def gconnect():
     if result['issued_to'] != CLIENT_ID:
         response = make_response(
             json.dumps("Token's client ID does not match app's."), 401)
-        print "Token's client ID does not match app's."
         response.headers['Content-Type'] = 'application/json'
         return response
 
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps(
+                                 'Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
     # Store the access token in the session for later use.
     login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
-    print "gplus_id"
-    print login_session['gplus_id']
 
     # Get user info
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
@@ -253,14 +248,10 @@ def gconnect():
 
     # see if user exists, if it doesn't make a new one
     user_id = getUserId(data['email'])
-    print "user id"
-    print user_id
     if not user_id:
-        print "creating user!"
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
-    print "done!"
     return "<h1>Done</h1>"
 
 
@@ -279,8 +270,6 @@ def gdisconnect():
     result = h.request(url, 'GET')[0]
     if result['status'] == '200':
         del login_session['access_token']
-        print "deleting gplus_id"
-        print login_session['gplus_id']
         del login_session['gplus_id']
         del login_session['username']
         del login_session['email']
@@ -288,7 +277,8 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps(
+                                'Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
 
