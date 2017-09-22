@@ -56,6 +56,14 @@ def showItem(item_catagory, item_name):
     return render_template('item.html', item=item_result)
 
 
+@app.route('/catalog/<string:item_catagory>/<string:item_name>/JSON/')
+@app.route('/catalog/<string:item_catagory>/<string:item_name>/json/')
+def itemJSON(item_catagory, item_name):
+    item_result = session.query(Item).filter_by(catagory=item_catagory,
+                                                name=item_name).one()
+    return jsonify(items=[item_result.serialize])
+
+
 # List of all items in specific catagory
 @app.route('/catalog/<string:item_catagory>/items/')
 def showCatagory(item_catagory):
@@ -64,6 +72,13 @@ def showCatagory(item_catagory):
     cat_items = session.query(Item).filter_by(catagory=item_catagory)
     return render_template('catagory_list.html', catagories=cat,
                            items=cat_items)
+
+
+@app.route('/catalog/<string:item_catagory>/items/JSON/')
+@app.route('/catalog/<string:item_catagory>/items/json/')
+def catagoryJSON(item_catagory):
+    cat_items = session.query(Item).filter_by(catagory=item_catagory)
+    return jsonify(items=[j.serialize for j in cat_items])
 
 
 # Edit specific items
@@ -97,8 +112,8 @@ def createItem():
         return redirect(url_for('loginPage'))
 
     if request.method == 'POST':
-        if request.form['name'] and request.form['description']
-        and request.form['catagory']:
+        if request.form['name'] and request.form[
+                'description'] and request.form['catagory']:
             time = str(datetime.now())
             item1 = Item(name=request.form['name'],
                          catagory=request.form['catagory'],
@@ -174,6 +189,7 @@ def createUser(login_session):
     return user.id
 
 
+# Function provided by UDACITY
 # Google accounts
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
