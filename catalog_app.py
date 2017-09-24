@@ -3,7 +3,7 @@ from flask import session as login_session
 from flask import make_response
 from sqlalchemy import create_engine, asc, func
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Item, User
+from database_setup import Base, Item, User, Catagory
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from datetime import datetime
@@ -31,6 +31,8 @@ session = DBSession()
 
 
 # JSON format
+@app.route('/JSON/')
+@app.route('/json/')
 @app.route('/catalog/JSON/')
 @app.route('/catalog/json/')
 def catalogJSON():
@@ -42,8 +44,7 @@ def catalogJSON():
 @app.route('/')
 @app.route('/catalog/')
 def showItemsMain():
-    cat = session.query(Item).group_by(
-                            func.upper(Item.catagory)).order_by(Item.catagory)
+    cat = session.query(Catagory).group_by(Catagory.name)
     latest = session.query(Item).order_by(Item.timeCreated.desc())
     return render_template('latest_list.html', catagories=cat, items=latest)
 
@@ -67,8 +68,7 @@ def itemJSON(item_catagory, item_name):
 # List of all items in specific catagory
 @app.route('/catalog/<string:item_catagory>/items/')
 def showCatagory(item_catagory):
-    cat = session.query(Item).group_by(func.upper(
-        Item.catagory)).order_by(Item.catagory)
+    cat = session.query(Catagory).group_by(Catagory.name).all()
     cat_items = session.query(Item).filter_by(catagory=item_catagory)
     return render_template('catagory_list.html', catagories=cat,
                            items=cat_items)
@@ -81,28 +81,18 @@ def catagoryJSON(item_catagory):
     return jsonify(items=[j.serialize for j in cat_items])
 
 
-# Edit specific items
-@app.route('/catalog/<string:item_catagory>/<string:item_name>/edit/',
-           methods=['GET', 'POST'])
-def editItem(item_catagory, item_name):
-    # In case not logged in user accesses site using the url
-    if 'username' not in login_session:
-        return redirect(url_for('loginPage'))
+# Returns True if catagory does not exist
+def isNotInCatagory(catagoryName):
+    cat = session.query(Catagory).filter_by(name=func.upper(catagoryName))
+    if cat is None:
+        return False
+    return True
 
-    item_result = session.query(Item).filter_by(catagory=item_catagory,
-                                                name=item_name).one()
-    if request.method == 'POST':
-        if request.form['name']:
-            item_result.name = request.form['name']
-        if request.form['description']:
-            item_result.description = request.form['description']
-        if request.form['catagory']:
-            item_result.catagory = request.form['catagory']
-        session.add(item_result)
-        session.commit()
-        return redirect(url_for('showItemsMain'))
-    else:
-        return render_template('edit-item.html', item=item_result)
+
+def addCatagory(catagoryName):
+    cat = Catagory(name=func.upper(catagoryName))
+    session.add(cat)
+    session.commit()
 
 
 # Add new Item
@@ -114,16 +104,53 @@ def createItem():
     if request.method == 'POST':
         if request.form['name'] and request.form[
                 'description'] and request.form['catagory']:
+            # Add new catagory if the request.form['catagory'] not in database
+            if isNotInCatagory(func.upper(request.form['catagory'])):
+                addCatagory(func.upper(request.form['catagory']))
+
             time = str(datetime.now())
             item1 = Item(name=request.form['name'],
-                         catagory=request.form['catagory'],
+                         catagory=func.upper(request.form['catagory']),
                          description=request.form['description'],
-                         timeCreated=time)
+                         timeCreated=time,
+                         user_email=login_session['email'])
             session.add(item1)
             session.commit()
             return redirect(url_for('showItemsMain'))
     else:
         return render_template('add-item.html')
+
+
+# Edit specific items
+@app.route('/catalog/<string:item_catagory>/<string:item_name>/edit/',
+           methods=['GET', 'POST'])
+def editItem(item_catagory, item_name):
+    # In case not logged in user accesses site using the url
+    if 'username' not in login_session:
+        return redirect(url_for('loginPage'))
+
+    item_result = session.query(Item).filter_by(catagory=item_catagory,
+                                                name=item_name).one()
+
+    # Check if correct user is accessing file
+    if login_session['email'] != item_result.user_email:
+        return render_template('no-permission.html')
+
+    if request.method == 'POST':
+        if request.form['name']:
+            item_result.name = request.form['name']
+        if request.form['description']:
+            item_result.description = request.form['description']
+        if request.form['catagory']:
+            # Add new catagory if the request.form['catagory'] not in database
+            if isNotInCatagory(func.upper(request.form['catagory'])):
+                addCatagory(func.upper(request.form['catagory']))
+            item_result.catagory = func.upper(request.form['catagory'])
+        session.add(item_result)
+        session.commit()
+        return redirect(url_for('showItemsMain'))
+    else:
+        return render_template('edit-item.html', item=item_result)
 
 
 # Delete specific item
@@ -135,6 +162,11 @@ def deleteItem(item_catagory, item_name):
 
     result_item = session.query(Item).filter_by(
                                 catagory=item_catagory, name=item_name).one()
+
+    # Check if correct user is accessing file
+    if login_session['email'] != result_item.user_email:
+        return render_template('no-permission.html')
+
     if request.method == 'POST':
         session.delete(result_item)
         session.commit()

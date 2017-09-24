@@ -1,6 +1,6 @@
 # UDACITY Project 3 Catalog App
 
-A simple catalog application allowing users to view items in a catalog, as well as create and edit new or existing items. This app uses Google+ sign in to allow user functionality. 
+A simple catalog application allowing users to view items in a catalog, as well as create and edit new or existing items. This app uses Google+ sign in to allow user functionality.
 
 ## Requirements
 
@@ -28,7 +28,10 @@ Then run
 
 Connect to `localhost:5000` to access the site.
 
-If you don't want an empty site, the `populatedatabase.py` file has some catalog entries already filled out. Simply run `populatedatabase.py` after creating the database to add items to the catalog. So in order,
+If you don't want an empty site, the `populatedatabase.py` file has some catalog entries already filled out. Simply run `populatedatabase.py` after creating the database to add items to the catalog. (Note: These entries are
+purely to see how the site looks with data. They cannot be altered or removed via the app as the email associated is
+purely fictional. To remove items, flush or delete database.)
+
 
 ``` sh
 $ python database_setup.py

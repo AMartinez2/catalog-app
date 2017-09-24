@@ -6,19 +6,23 @@
   <div class="listed-items">
     <h3>Catagories</h3>
     {% for i in catagories %}
-      <a href="{{ url_for('showCatagory', item_catagory=i.catagory) }}">
-        <h4>{{ i.catagory }}</h4>
+      <a href="{{ url_for('showCatagory', item_catagory=i.name) }}">
+        <h4>{{ i.name }}</h4>
       </a>
     {% endfor %}
   </div>
 
   <div class="listed-items">
     <h3>Items</h3>
-    {% for i in items %}
-      <a href="{{ url_for('showItem', item_catagory=i.catagory, item_name=i.name) }}">
-        <h4>{{ i.name }}</h4>
-      </a>
-    {% endfor %}
+    {% if items[0] is defined %}
+      {% for i in items %}
+          <a href="{{ url_for('showItem', item_catagory=i.catagory, item_name=i.name) }}">
+            <h4>{{ i.name }}</h4>
+          </a>
+      {% endfor %}
+    {% else %}
+      <h4>Nothing here</h4>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

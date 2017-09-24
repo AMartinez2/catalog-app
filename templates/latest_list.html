@@ -6,8 +6,8 @@
   <div class="listed-items">
     <h3>Catagories</h3>
     {% for i in catagories %}
-      <a href="{{ url_for('showCatagory', item_catagory=i.catagory) }}">
-        <h4>{{ i.catagory }}</h4>
+      <a href="{{ url_for('showCatagory', item_catagory=i.name) }}">
+        <h4>{{ i.name }}</h4>
       </a>
     {% endfor %}
   </div>

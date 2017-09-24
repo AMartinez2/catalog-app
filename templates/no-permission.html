@@ -1,0 +1,8 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class='restricted container'>
+  <p id="r-file">You do not have permission for this file. Please log in as the correct user</p>
+  <a id="r-return" href="{{ url_for('showItemsMain') }}">Return</a>
+</div>
+{% endblock %}
